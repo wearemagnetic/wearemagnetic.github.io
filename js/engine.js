@@ -21,12 +21,12 @@ let engine = {
  
  */
 /** TODO: make self-contained data structure that is not dependent on ORDER */
-	all_data : {
-		'q1':{'title':'Product &amp; service design', 'description':'Includes Proposition Design, Product Design, Digital and Physical Experience Design'},
-		'q2':{'title':'Management &amp; leadership', 'description':'How we influence people to get stuff done'},
-		'q3':{'title':'Capability building', 'description':'Providing clients with the tools they need to achieve their goals.'},
-		'q4':{'title':'Transforming organizations', 'description':'What skills do you have that can support our clients in their ambitions to change their business?'}
-	},
+//	all_data : {
+//		'q1':{'title':'Product &amp; service design', 'description':'Includes Proposition Design, Product Design, Digital and Physical Experience Design'},
+//		'q2':{'title':'Management &amp; leadership', 'description':'How we influence people to get stuff done'},
+//		'q3':{'title':'Capability building', 'description':'Providing clients with the tools they need to achieve their goals.'},
+//		'q4':{'title':'Transforming organizations', 'description':'What skills do you have that can support our clients in their ambitions to change their business?'}
+//	},
 
 /**
 COMPLETELY UNFAMILIAR
@@ -57,12 +57,7 @@ MASTER
 You are seen as the best in your craft on an industry-wide stage and are a thought-leader publicly. You are able to identify when new skills or methods need to be introduced and developed based on the task or customer need. You are comfortable sitting in C-Suite situations and explain, challenge and recruit in this craft.
 
 Client role comparison (you should be able to comfortably guide and challenge) - C-suite, Director
-
-
-
  */
-
-
 
 	rating_description_lookup : [
 		{'title':'unrated','description':'n/a'},
@@ -193,6 +188,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	current_data : {},
 	
 	init : function(){
+		let page = document.getElementsByTagName('body')[0].getAttribute('data-page');
 		this.current_data = [];	
 		/** TODO: switch on pag type ? */
 		/** onload, retrieve the current data 
@@ -213,9 +209,12 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 //			{'key':[0,0,0],'rating':5}
 //			]
 		
-		engine.test_load_data();
+		if(page === 'dev'){
+			engine.test_load_data();
+		}
 		
-		let svg = document.getElementById('svg_compass');
+		
+//		let svg = document.getElementById('svg_compass');
 	},
 	
 	/** call API endpoint to return currently stored data
