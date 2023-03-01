@@ -377,15 +377,23 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		/** build IDs: */
 		for(let x=1;x<=max_id;x++){
 			//console.log('svg_'+id_prefix + '-'+x);
-			if(show){
-				document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
-			}
-			else{
-				if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
-					document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
+			let elem = document.getElementById('svg_'+id_prefix + '-'+x);
+			if(elem){
+				if(show){
+					//document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
+					elem.classList.add('svg_show');
 				}
-				
+				else{
+					if(!elem.classList.contains('svg_clicked')){
+						elem.classList.remove('svg_show');
+					}
+//					if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
+//						document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
+//					}
+					
+				}				
 			}
+
 		}
 		//document.getElementById('svg_'+elem.getAttribute('id')).classList.add('svg_show');
 	},
