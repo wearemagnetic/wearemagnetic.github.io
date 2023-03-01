@@ -193,27 +193,64 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	current_data : {},
 	
 	init : function(){
-		/** TODO: switch on pag type ! */
-		
-		let svg = document.getElementById('svg_compass');
-		if(svg){
-			console.log(svg);
-		}
-		
+		this.current_data = [];	
+		/** TODO: switch on pag type ? */
+		/** onload, retrieve the current data 
+		 * This will require soe refactoring to account for async call to rertieve the data
+		*/
+				
 		for(id of this.elems){
 			elem = document.getElementById(id)
 			elem.addEventListener('mouseover',this.test_in)
 			elem.addEventListener('mouseout',this.test_out);
 			elem.addEventListener('click',this.test_handler)
 		};
-		this.current_data = [];	
+		//TEST
+//		let in_data = [
+//			{'key':[1,3,3],'rating':1},
+//			{'key':[1,2,2],'rating':1},
+//			{'key':[3,0,0],'rating':6},
+//			{'key':[0,0,0],'rating':5}
+//			]
+		
+		engine.test_load_data();
+		
+		let svg = document.getElementById('svg_compass');
+	},
+	
+	/** call API endpoint to return currently stored data
+	 * This will be a call to a back-end storage of previously stored data for current user.
+	 * NOTE: this may need to be refactored if something becomes dependent on this data being loaded first
+	 */
+	test_load_data : function(){
+		fetch("/test_data/data.txt")
+		.then(
+			(response) => response.json()
+		)
+		.then(function(data){
+			//console.log(data);
+			
+			for(let a=0;a<data.length;a++){
+				//console.log(data[a])
+				engine.addToUserdata(data[a].key,data[a].rating);
+				
+				/**
+				 * and identify the elements to autoclick:
+				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
+				 */
+				// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
+				let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
+				//console.log(elem);
+				elem.click();
+			}
+		});
 	},
 	
 	test_handler : function(){
 		if(this.current_score > -1){
 			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating);
 			this.setAttribute('class','clicked');
-			console.log(this);
+			//console.log(this);
 		}
 		/** also need to set the class so the mouse leave only hides if the given item has NOT been clicked */
 		engine.setSectorSVGDClicked(this);
@@ -301,6 +338,8 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 			//console.log('appending');
 			engine.current_data.push({'key':lookup,'rating':rating})
 		}
+		console.log(engine.current_data);
+		/** hook in API database update call here */
 		this.renderRatings();
 		//}
 	},
@@ -315,7 +354,8 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		
 		/** first, remove ALL */
 		for(let a=1;a<=6;a++){
-			console.log('removing','svg_'+id_prefix + '-'+a);
+			//console.log('removing','svg_'+id_prefix + '-'+a);
+			document.getElementById('svg_'+id_prefix + '-'+a).classList.remove('svg_clicked');
 			document.getElementById('svg_'+id_prefix + '-'+a).classList.remove('svg_show');
 		}
 		/** then set the currently clicked element: */
@@ -329,14 +369,14 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	 * Take a hover element, and set the visibility of all LOWER rated ones
 	 */
 	setSectorSVGDDisplay : function(elem,show){
-		console.log(elem.getAttribute('id'),elem.getAttribute('data-lookup'),elem.getAttribute('data-rating'));
+		//console.log(elem.getAttribute('id'),elem.getAttribute('data-lookup'),elem.getAttribute('data-rating'));
 		let id_prefix = elem.getAttribute('id').split('-')[0];
 		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
-		console.log(id_prefix,max_id);
+		//console.log(id_prefix,max_id);
 
 		/** build IDs: */
 		for(let x=1;x<=max_id;x++){
-			console.log('svg_'+id_prefix + '-'+x);
+			//console.log('svg_'+id_prefix + '-'+x);
 			if(show){
 				document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
 			}
