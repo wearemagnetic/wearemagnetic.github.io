@@ -27,3 +27,33 @@
 #rating{
 	height: 30px;
 }
+
+/* svg */
+#svg_compass{
+	position: absolute;
+    top: 9px;
+    left: 9px;
+    width: 1152;
+    height: 900px;
+    z-index: -1;
+}
+.svg_hide{
+	fill: none;
+}
+.svg_show.q1{
+	fill: lightgreen;
+}
+.svg_show.q2{
+	fill: lightblue;
+}
+.svg_show.q3{
+	fill: lightpink;
+}
+.svg_show.q4{
+	fill: lightyellow;
+}
+
+
+/* #svg_compass > polygon{ */
+/* 	fill: none; */
+/* } */

@@ -193,6 +193,13 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	current_data : {},
 	
 	init : function(){
+		/** TODO: switch on pag type ! */
+		
+		let svg = document.getElementById('svg_compass');
+		if(svg){
+			console.log(svg);
+		}
+		
 		for(id of this.elems){
 			elem = document.getElementById(id)
 			elem.addEventListener('mouseover',this.test_in)
@@ -204,13 +211,20 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	
 	test_handler : function(){
 		if(this.current_score > -1){
-			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating)
+			engine.addToUserdata([this.current_quad,this.current_sector,this.current_score], this.current_rating);
+			this.setAttribute('class','clicked');
+			console.log(this);
 		}
+		/** also need to set the class so the mouse leave only hides if the given item has NOT been clicked */
+		engine.setSectorSVGDClicked(this);
 	},
 
 	test_in : function(){
 		let self = document.getElementById(this.getAttribute('id'))
-		console.log(self)
+		//console.log(self)
+		//console.log(document.getElementById('svg_'+this.getAttribute('id')))
+		// document.getElementById('svg_'+this.getAttribute('id')).classList.add('svg_show');
+		engine.setSectorSVGDDisplay(self,true);
 		let sector_rating = -1;
 	    let lookup = JSON.parse(this.getAttribute('data-lookup')); // expects a string of '[n,n,n]' where n is integer
 	    
@@ -255,7 +269,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		document.getElementById('sector_block_description').innerText = sector_block_description;
 		document.getElementById('rating').innerText = output_rating;
 		let elem_title = [];
-		console.log(lookup)
+		//console.log(lookup)
 		if(quad_title && lookup[2] === -1) elem_title.push(quad_title);
 		if(quad_description && lookup[2] === -1) elem_title.push(quad_description);
 		if(sector_title && lookup[2] === -1) elem_title.push(sector_title);
@@ -266,38 +280,86 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	},
 	
 	test_out : function(){
+		let self = document.getElementById(this.getAttribute('id'))
+		engine.setSectorSVGDDisplay(self,false);
+		//document.getElementById('svg_'+this.getAttribute('id')).classList.remove('svg_show');
 		document.getElementById('rating').innerText = "";
 	},
 	
 	addToUserdata : function(lookup,rating){
-		console.log(lookup,rating);
+		//console.log(lookup,rating);
 		//if(lookup[2]>-1){
-			let append = true;
-			for(let a=0;a<engine.current_data.length;a++){
-				if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
-					append = false;
-					console.log('updating');
-					engine.current_data[a].rating = rating;
-				}
+		let append = true;
+		for(let a=0;a<engine.current_data.length;a++){
+			if(engine.current_data[a].key[0] === lookup[0] && engine.current_data[a].key[1] === lookup[1] && engine.current_data[a].key[2] === lookup[2]){
+				append = false;
+				//console.log('updating');
+				engine.current_data[a].rating = rating;
 			}
-			if(append){
-				console.log('appending');
-				engine.current_data.push({'key':lookup,'rating':rating})
-			}
-			this.renderRatings();
+		}
+		if(append){
+			//console.log('appending');
+			engine.current_data.push({'key':lookup,'rating':rating})
+		}
+		this.renderRatings();
 		//}
 	},
 	
+	/** 
+	 * set a 'clicked' flag on a sector from the clicked element to the centre. This flag is used
+	 * to suppress the hover off removal of the colour:
+	 */
+	setSectorSVGDClicked : function(elem){
+		let id_prefix = elem.getAttribute('id').split('-')[0];
+		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
+		
+		/** first, remove ALL */
+		for(let a=1;a<=6;a++){
+			console.log('removing','svg_'+id_prefix + '-'+a);
+			document.getElementById('svg_'+id_prefix + '-'+a).classList.remove('svg_show');
+		}
+		/** then set the currently clicked element: */
+		for(let x=1;x<=max_id;x++){
+			document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_clicked');
+			document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
+		}
+	},
+	
+	/** 
+	 * Take a hover element, and set the visibility of all LOWER rated ones
+	 */
+	setSectorSVGDDisplay : function(elem,show){
+		console.log(elem.getAttribute('id'),elem.getAttribute('data-lookup'),elem.getAttribute('data-rating'));
+		let id_prefix = elem.getAttribute('id').split('-')[0];
+		let max_id = parseInt(elem.getAttribute('id').split('-')[1]);
+		console.log(id_prefix,max_id);
+
+		/** build IDs: */
+		for(let x=1;x<=max_id;x++){
+			console.log('svg_'+id_prefix + '-'+x);
+			if(show){
+				document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
+			}
+			else{
+				if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
+					document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
+				}
+				
+			}
+		}
+		//document.getElementById('svg_'+elem.getAttribute('id')).classList.add('svg_show');
+	},
+	
 	renderRatings : function(){
-		console.log(engine.current_data);
+		//console.log(engine.current_data);
 		let target = document.getElementById('userdata');
 		target.innerText = "";
 		engine.current_data.sort((a,b) => (a.key[0] > b.key[0]) ? 1 : -1);
 		for(let a=0;a<engine.current_data.length;a++){
-			console.log('sector:',engine.current_data[a].key[0])
-			console.log('segment title data:',engine.current_data[a].key[1])
-			console.log('segment block data:',engine.current_data[a].key[2])
-			console.log('rating:',engine.current_data[a].rating)
+//			console.log('sector:',engine.current_data[a].key[0])
+//			console.log('segment title data:',engine.current_data[a].key[1])
+//			console.log('segment block data:',engine.current_data[a].key[2])
+//			console.log('rating:',engine.current_data[a].rating)
 			let row = document.createElement('div');
 			/** do as better DOM elements! */
 			row.appendChild(document.createTextNode(
@@ -308,7 +370,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 				+engine.rating_description_lookup[engine.current_data[a].rating].title
 				+ ' (' + engine.rating_description_lookup[engine.current_data[a].rating].description + ')'
 			))
-			console.log(engine.data_0[engine.current_data[a].key[0]])
+			//console.log(engine.data_0[engine.current_data[a].key[0]])
 			target.appendChild(row);
 		}
 	},
