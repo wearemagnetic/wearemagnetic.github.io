@@ -209,7 +209,7 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 //			{'key':[0,0,0],'rating':5}
 //			]
 		
-		if(page === 'dev'){
+		if(page === 'svg'){
 			engine.test_load_data();
 		}
 		
@@ -220,29 +220,54 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 	/** call API endpoint to return currently stored data
 	 * This will be a call to a back-end storage of previously stored data for current user.
 	 * NOTE: this may need to be refactored if something becomes dependent on this data being loaded first
+	 * 
+	 * replace this with localStorage.get();?
+	 * 
+	 * and:
+	 * https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
 	 */
 	test_load_data : function(){
-		fetch("/test_data/data.txt")
-		.then(
-			(response) => response.json()
-		)
-		.then(function(data){
-			//console.log(data);
+
+		console.log('getting localstorage...');
+		console.log(localStorage.getItem('compassData'))
+		let data = JSON.parse(localStorage.getItem('compassData'));
+		for(let a=0;a<data.length;a++){
+			//console.log(data[a])
+			engine.addToUserdata(data[a].key,data[a].rating);
 			
-			for(let a=0;a<data.length;a++){
-				//console.log(data[a])
-				engine.addToUserdata(data[a].key,data[a].rating);
-				
-				/**
-				 * and identify the elements to autoclick:
-				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
-				 */
-				// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
-				let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
-				//console.log(elem);
-				elem.click();
-			}
-		});
+			/**
+			 * and identify the elements to autoclick:
+			 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
+			 */
+			// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
+			let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
+			//console.log(elem);
+			elem.click();
+		}
+		
+		
+//		fetch("/test_data/data.txt")
+//		.then(
+//			(response) => response.json()
+//		)
+//		.then(function(data){
+//			//console.log(data);
+//			
+//			for(let a=0;a<data.length;a++){
+//				//console.log(data[a])
+//				engine.addToUserdata(data[a].key,data[a].rating);
+//				
+//				/**
+//				 * and identify the elements to autoclick:
+//				 * https://stackoverflow.com/questions/29937768/document-queryselector-multiple-data-attributes-in-one-element
+//				 */
+//				// console.log('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]')
+//				let elem = document.querySelector('[data-lookup="['+data[a].key+']"][data-rating="'+data[a].rating+'"]');
+//				//console.log(elem);
+//				elem.click();
+//			}
+//		});
+
 	},
 	
 	test_handler : function(){
@@ -339,6 +364,11 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 		}
 		console.log(engine.current_data);
 		/** hook in API database update call here */
+		
+		/** or push to localstorage... */
+		console.log('setting localStorage:')
+		localStorage.removeItem('compassData')
+		localStorage.setItem('compassData',JSON.stringify(engine.current_data));
 		this.renderRatings();
 		//}
 	},
@@ -380,12 +410,14 @@ Client role comparison (you should be able to comfortably guide and challenge) -
 			if(elem){
 				if(show){
 					//document.getElementById('svg_'+id_prefix + '-'+x).classList.add('svg_show');
-					elem.classList.add('svg_show');
+					//elem.classList.add('svg_show');
+					elem.classList.add('svg_hover');
 				}
 				else{
-					if(!elem.classList.contains('svg_clicked')){
-						elem.classList.remove('svg_show');
-					}
+//					if(!elem.classList.contains('svg_clicked')){
+//						elem.classList.remove('svg_show');
+//					}
+					elem.classList.remove('svg_hover');
 //					if(!document.getElementById('svg_'+id_prefix + '-'+x).classList.contains('svg_clicked')){
 //						document.getElementById('svg_'+id_prefix + '-'+x).classList.remove('svg_show');
 //					}
